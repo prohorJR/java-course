@@ -36,4 +36,4 @@ public class Operation {
         String formattedDate = dateFormat.format(date);
         return "Дата: " + formattedDate + " | " + type + " | " + sum + " руб. | " + info;
     }
-}
+}// чоко и пай
