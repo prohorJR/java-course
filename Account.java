@@ -88,5 +88,43 @@ public class Account {
         return cardname; 
     }
 
+    private String generateCardNumber() {
+        Random random = new Random();
+        String cardNumber = "";
+        for (int i = 0; i < 16; i++) {
+            cardNumber += random.nextInt(10);
+            if ((i + 1) % 4 == 0 && i != 15){
+                cardNumber += " ";
+            }
+        }
+            return cardNumber;
+    }
+
+    private String generateValidPeriod() {
+        Random random = new Random();
+        int month = random.nextInt(12) + 1;
+        int year = 25 + random.nextInt(5);
+        return String.format("%02d/%d", month, year);
+    }
+
+    private String generateCVV() {
+        Random random = new Random();
+        return String.format("%03d", random.nextInt(1000));
+    }
+
+    public void CardInfo() {
+        System.out.println("БАНКОВСКАЯ КАРТА");
+        System.out.println("Владелец: " + cardname);
+        System.out.println("Номер карты: " + id);
+        System.out.println("Срок действия: " + validperiod);
+        System.out.println("CVV: " + cvv);
+        System.out.println("Баланс: " + balance + " руб");
+    }
+    
+    public void useCard() {
+        System.out.println("Карта " + id + " готова к использованию");
+        System.out.println("Введите PIN-код для доступа к счету");
+    }
     
 }
+
