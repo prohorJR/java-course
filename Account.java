@@ -48,4 +48,18 @@ public class Account {
     public List<Operation> getOperations() {
         return new ArrayList<Operation>(operations);
     }
+
+    public void showHistory() { 
+        System.out.println("История транзакций");
+        if (operations.isEmpty()) { 
+            System.out.println("Транзакции отсутствуют");
+        }
+        else { 
+            for (int  i = 0; i < operations.size(); i++) { 
+                Operation operation = operations.get(i);
+                System.out.println(operation);
+            }
+        }
+        
+    }
 }
