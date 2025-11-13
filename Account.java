@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Account {
     private String id;
@@ -7,11 +8,19 @@ public class Account {
     private double balance;
     private List<Operation> operations;
     
-    public Account(String id, String pin, double firstBalance) {
-        this.id = id;
+    private String validperiod;
+    private String cvv;
+    private String cardname;
+
+
+    public Account(String cardname, String pin, double firstBalance) {
+        this.id = generateCardNumber();
         this.pin = pin;
         this.balance = firstBalance;
+        this.cardname = cardname.toUpperCase();
         this.operations = new ArrayList<Operation>();
+        this.validperiod = generateValidPeriod();
+        this.cvv = generateCVV();
     }
 
     public String getId() {
@@ -62,4 +71,22 @@ public class Account {
         }
         
     }
+
+    public String getCardNumber() { 
+        return id;
+    }
+
+    public String getValidperiod() { 
+        return validperiod;
+    }
+
+    public String getCVV() {
+        return cvv;
+    }
+
+    public String getcardname() { 
+        return cardname; 
+    }
+
+    
 }
