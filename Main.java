@@ -19,21 +19,24 @@ public class Main {
         System.out.println("Вставьте карту (нажмите Enter)");
         scanner.nextLine();
         int attempt = 0;
-        while (true) { 
+        while (attempt < 3) { 
             System.out.println("Введите PIN-код для входа:");
             String entPin = scanner.nextLine();
-            attempt++;
-        if (attempt >=3) { 
-            System.out.println("Превышено количество попыток! Создайте PIN-код заново.");
-            attempt = 0;
-            return; 
+            if (currentAccount.checkPin(entPin)) { 
+                System.out.println("PIN-код ввёден верно. Добро пожаловать!");
+                showMenu();
+                return;
+            } else { 
+                attempt++;
+                System.out.println("Неверный PIN-код! Осталось попыток: " + (3 - attempt));
+            }
         }
-        break;
-     }
-
-        showMenu();
+        System.out.println("Превышено кол-во попыток! Создайте новую карту.");
+        createNewCard();
+        startMain();
     }
-    
+
+
 private static void createNewCard() {
     System.out.println("\nСоздание банковской карты");
     String name;
