@@ -8,40 +8,81 @@ public class Main {
     public static void main(String[] args) {
         bank = new Bank();
         scanner = new Scanner(System.in);
-        Account account = null;
+        currentAccount = null;
         
         startMain();
     }
-    
+
     public static void startMain() {
+        createNewCard();
         System.out.println("Банкомат");
         System.out.println("Вставьте карту (нажмите Enter)");
         scanner.nextLine();
-        createNewCard();
+        int attempt = 0;
+        while (true) { 
+            System.out.println("Введите PIN-код для входа:");
+            String entPin = scanner.nextLine();
+            attempt++;
+        if (attempt >=3) { 
+            System.out.println("Превышено количество попыток! Создайте PIN-код заново.");
+            attempt = 0;
+            return; 
+        }
+        break;
+     }
+
         showMenu();
     }
     
-    private static void createNewCard() {
-        System.out.println("\nСоздание банковской карты");
-        
+private static void createNewCard() {
+    System.out.println("\nСоздание банковской карты");
+    String name;
+    while (true) {
         System.out.print("Введите ваше имя и фамилию: ");
-        String name = scanner.nextLine();
+        name = scanner.nextLine();
         
-        System.out.print("Придумайте PIN-код (4 цифры): ");
-        String pin = scanner.nextLine();
-        
-        System.out.print("Внесите начальную сумму: ");
-        double balance = Double.parseDouble(scanner.nextLine());
-        
-        account = new Account(name, pin, balance);
-        bank.createAccount(name, pin, balance);
-        
-        System.out.println("\nКарта создана успешно!");
-        currentAccount.CardInfo();
-        
-        System.out.println("\nНажмите Enter для продолжения");
-        scanner.nextLine();
+        if (name.matches("^[a-zA-Z ]+$")) {
+            break;
+        } else {
+            System.out.println("Ошибка! Используйте только английские буквы и пробелы.");
+        }
     }
+    
+        String pin;
+    while (true) {
+        System.out.print("Придумайте PIN-код (4 цифры): ");
+        pin = scanner.nextLine();
+        if (pin.matches("^[0-9]{4}$")) { 
+            break;
+        } else { 
+            System.out.println("Ошибка! В PIN-коде должно быть ровно 4 цифры");
+        }
+    }
+
+    double balance = 0;
+    while (true) {
+        System.out.print("Внесите начальную сумму: ");
+        try {
+            balance = Double.parseDouble(scanner.nextLine());
+            if (balance >= 0) {
+                break;
+            } else {
+                System.out.println("Ошибка! Сумма не может быть отрицательной.");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Ошибка! Введите корректную сумму.");
+        }
+    }
+    
+    currentAccount = new Account(name, pin, balance);
+    bank.createAccount(name, pin, balance);
+    
+    System.out.println("\nКарта создана успешно!");
+    currentAccount.CardInfo();
+    
+    System.out.println("\nДля продолжения нажмите любую кнопку");
+    scanner.nextLine();
+}
     
     private static void showMenu() {
         while (true) {
@@ -121,12 +162,22 @@ public class Main {
     }
     
     private static void refill() {
-        System.out.print("Введите номер телефона: ");
-        String phone = scanner.nextLine();
+        String phone;
+        while (true) { 
+            System.out.print("Введите номер телефона: ");
+            phone = scanner.nextLine();
+            
+            if (phone.matches("^[78][0-9]{10}$")) {
+                break;
+            } else {
+                System.out.println("Ошибка! Номер должен начинаться с 7 или 8 и содержать 11 цифр.");
+            }
+        }
+                
         System.out.print("Сумма пополнения: ");
         try {
             double sum = Double.parseDouble(scanner.nextLine());
-            if (account.withdraw(sum)) {
+            if (currentAccount.withdraw(sum)) {
                 System.out.println("Телефон " + phone + " пополнен на " + sum + " руб.");
                 System.out.println("Остаток на счете: " + currentAccount.getBalance() + " руб.");
             } else {
