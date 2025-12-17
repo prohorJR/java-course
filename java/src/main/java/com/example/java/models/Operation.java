@@ -1,3 +1,5 @@
+package com.example.java.models;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

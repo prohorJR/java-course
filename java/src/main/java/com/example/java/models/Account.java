@@ -1,3 +1,5 @@
+package com.example.java.models;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -13,7 +15,7 @@ public class Account {
     private String cardname;
 
 
-    public Account(String cardname, String pin, double firstBalance) {
+        public Account(String cardname, String pin, double firstBalance) {
         this.id = generateCardNumber();
         this.pin = pin;
         this.balance = firstBalance;
@@ -123,7 +125,7 @@ public class Account {
     
     public void useCard() {
         System.out.println("Карта " + id + " готова к использованию");
-        System.out.println("Введите PIN-код для доступа к счету");
+        System.out.println("Введите PIN-код для доступа к счету:");
     }
     
 }
