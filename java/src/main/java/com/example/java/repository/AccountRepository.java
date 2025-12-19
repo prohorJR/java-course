@@ -19,4 +19,8 @@ public class AccountRepository {
                 .filter(a -> a.getCardNumber().equals(cardNumber))
                 .findFirst();
     }
+
+    public List<Account> findAll() {
+        return new ArrayList<>(accounts);
+    }
 }

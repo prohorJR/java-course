@@ -26,7 +26,34 @@ public class ATMController implements CommandLineRunner {
     }
 
     public void startMain() {
-        createNewCard();
+        showMainMenu();
+    }
+
+    private void showMainMenu() {
+        while (true) {
+            System.out.println("\n=== БАНКОМАТ ===");
+            System.out.println("1. Создать новую карту");
+            System.out.println("2. Войти в карту");
+            System.out.println("3. Выйти");
+            System.out.print("Выберите: ");
+            
+            String choice = scanner.nextLine();
+            
+            if (choice.equals("1")) {
+                createNewCard();
+                loginAfterCreate();
+            } else if (choice.equals("2")) {
+                loginToCard();
+            } else if (choice.equals("3")) {
+                System.out.println("До свидания!");
+                return;
+            } else {
+                System.out.println("Неверный выбор!");
+            }
+        }
+    }
+
+    private void loginAfterCreate() {
         System.out.println("\nБанкомат");
         System.out.println("Вставьте карту (нажмите Enter)");
         scanner.nextLine();
@@ -44,8 +71,21 @@ public class ATMController implements CommandLineRunner {
                 System.out.println("Неверный PIN-код! Осталось попыток: " + (3 - attempt));
             }
         }
-        System.out.println("Превышено кол-во попыток! Создаём новую карту.");
-        startMain();
+        System.out.println("Превышено кол-во попыток!");
+    }
+
+    private void loginToCard() {
+        System.out.print("\nВведите PIN карты: ");
+        String pin = scanner.nextLine();
+        
+        Account found = bank.findAccountByPin(pin);
+        if (found != null) {
+            currentAccount = found;
+            System.out.println("PIN-код введён верно. Добро пожаловать!");
+            showMenu();
+        } else {
+            System.out.println("Карта не найдена!");
+        }
     }
 
     private void createNewCard() {

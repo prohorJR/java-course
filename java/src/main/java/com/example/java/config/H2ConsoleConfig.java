@@ -9,7 +9,6 @@ public class H2ConsoleConfig implements WebMvcConfigurer {
     
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        // Редирект на H2 Console
         registry.addRedirectViewController("/db", "/h2-console");
     }
 }
