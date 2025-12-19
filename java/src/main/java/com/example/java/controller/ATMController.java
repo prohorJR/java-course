@@ -2,16 +2,24 @@ package com.example.java.controller;
 
 import java.util.Scanner;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.example.java.models.Account;
+import com.example.java.models.Operation;
+import com.example.java.models.OperationType;
 import com.example.java.service.BankService;
+import com.example.java.service.DatabaseService;
 
 @Component
 public class ATMController implements CommandLineRunner {
 
     private final BankService bank;
+    
+    @Autowired
+    private DatabaseService databaseService;
+    
     private Scanner scanner;
     private Account currentAccount;
 
@@ -22,7 +30,24 @@ public class ATMController implements CommandLineRunner {
     @Override
     public void run(String... args) {
         this.scanner = new Scanner(System.in);
+        
+        // Проверка БД
+        checkDatabase();
+        
         startMain();
+    }
+    
+    private void checkDatabase() {
+        System.out.println("\n=== ПРОВЕРКА БАЗЫ ДАННЫХ ===");
+        try {
+            int count = databaseService.getAllAccounts().size();
+            System.out.println("✓ База данных активна");
+            System.out.println("✓ Аккаунтов в БД: " + count);
+            System.out.println("✓ H2 Console: http://localhost:8080/h2-console");
+        } catch (Exception e) {
+            System.out.println("✗ Ошибка БД: " + e.getMessage());
+        }
+        System.out.println("============================\n");
     }
 
     public void startMain() {
@@ -130,8 +155,20 @@ public class ATMController implements CommandLineRunner {
 
         this.currentAccount = bank.createAccount(name, pin, firstBalance);
         
+        // СОХРАНЕНИЕ В БД
+        try {
+            databaseService.saveAccount(currentAccount);
+            System.out.println("\n✓ Карта сохранена в базу данных!");
+        } catch (Exception e) {
+            System.out.println("\n✗ Ошибка сохранения в БД: " + e.getMessage());
+        }
+        
         System.out.println("\nКарта успешно создана!");
         currentAccount.CardInfo();
+        
+        // Показать сколько аккаунтов теперь в БД
+        int count = databaseService.getAllAccounts().size();
+        System.out.println("Всего аккаунтов в БД: " + count);
     }
 
     private void showMenu() {
@@ -142,7 +179,7 @@ public class ATMController implements CommandLineRunner {
             String choice = scanner.nextLine();
 
             switch (choice) {
-                case "1" -> System.out.println("Баланс: " + currentAccount.getBalance() + " руб.");
+                case "1" -> showBalance();
                 case "2" -> withdraw();
                 case "3" -> deposit();
                 case "4" -> refill();
@@ -156,14 +193,37 @@ public class ATMController implements CommandLineRunner {
             }
         }
     }
+    
+    private void showBalance() {
+        System.out.println("Баланс: " + currentAccount.getBalance() + " руб.");
+    }
 
     private void deposit() {
         while (true) {
             System.out.print("Сумма пополнения: ");
             try {
                 double sum = Double.parseDouble(scanner.nextLine());
+                if (sum <= 0) {
+                    System.out.println("Сумма должна быть положительной!");
+                    continue;
+                }
+                
                 currentAccount.deposit(sum);
-                System.out.println("Счет пополнен.");
+                
+                // СОХРАНЕНИЕ В БД
+                try {
+                    databaseService.updateBalance(currentAccount.getId(), currentAccount.getBalance());
+                    
+                    // Создаем и сохраняем операцию
+                    Operation operation = new Operation(OperationType.DEPOSIT, sum);
+                    databaseService.saveOperation(operation, currentAccount.getId());
+                    
+                    System.out.println("✓ Операция сохранена в БД");
+                } catch (Exception e) {
+                    System.out.println("✗ Ошибка сохранения в БД: " + e.getMessage());
+                }
+                
+                System.out.println("Счет пополнен на " + sum + " руб.");
                 break;
             } catch (NumberFormatException e) {
                 System.out.println("Введите число!");
@@ -176,8 +236,26 @@ public class ATMController implements CommandLineRunner {
             System.out.print("Сумма снятия: ");
             try {
                 double sum = Double.parseDouble(scanner.nextLine());
+                if (sum <= 0) {
+                    System.out.println("Сумма должна быть положительной!");
+                    continue;
+                }
+                
                 if (currentAccount.withdraw(sum)) {
-                    System.out.println("Успешно!");
+                    // СОХРАНЕНИЕ В БД
+                    try {
+                        databaseService.updateBalance(currentAccount.getId(), currentAccount.getBalance());
+                        
+                        // Создаем и сохраняем операцию
+                        Operation operation = new Operation(OperationType.WITHDRAWAL, sum);
+                        databaseService.saveOperation(operation, currentAccount.getId());
+                        
+                        System.out.println("✓ Операция сохранена в БД");
+                    } catch (Exception e) {
+                        System.out.println("✗ Ошибка сохранения в БД: " + e.getMessage());
+                    }
+                    
+                    System.out.println("Успешно! Снято: " + sum + " руб.");
                 } else {
                     System.out.println("Ошибка: недостаточно средств.");
                 }
@@ -201,10 +279,28 @@ public class ATMController implements CommandLineRunner {
             System.out.print("Сумма пополнения: ");
             try {
                 double sum = Double.parseDouble(scanner.nextLine());
+                if (sum <= 0) {
+                    System.out.println("Сумма должна быть положительной!");
+                    continue;
+                }
+                
                 if (currentAccount.withdraw(sum)) {
-                    System.out.println("Телефон " + phone + " пополнен.");
+                    // СОХРАНЕНИЕ В БД
+                    try {
+                        databaseService.updateBalance(currentAccount.getId(), currentAccount.getBalance());
+                        
+                        // Создаем и сохраняем операцию
+                        Operation operation = new Operation(OperationType.REFILL, sum);
+                        databaseService.saveOperation(operation, currentAccount.getId());
+                        
+                        System.out.println("✓ Операция сохранена в БД");
+                    } catch (Exception e) {
+                        System.out.println("✗ Ошибка сохранения в БД: " + e.getMessage());
+                    }
+                    
+                    System.out.println("Телефон " + phone + " пополнен на " + sum + " руб.");
                 } else {
-                    System.out.println("Ошибка пополнения");
+                    System.out.println("Ошибка: недостаточно средств.");
                 }
                 break;
             } catch (NumberFormatException e) {
