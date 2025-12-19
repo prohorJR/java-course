@@ -289,7 +289,7 @@ public class ATMController implements CommandLineRunner {
                     try {
                         databaseService.updateBalance(currentAccount.getId(), currentAccount.getBalance());
                         
-                        // Создаем и сохраняем операцию
+                        // Создаем и сохраняем операцию .
                         Operation operation = new Operation(OperationType.REFILL, sum);
                         databaseService.saveOperation(operation, currentAccount.getId());
                         
